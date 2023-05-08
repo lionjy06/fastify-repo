@@ -1,0 +1,28 @@
+{
+  "extends": "fastify-tsconfig",
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2022"],
+    "moduleResolution": "node",
+    "strict": true,
+    "outDir": "dist",
+    "newLine": "lf",
+    "sourceMap": true,
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+  },
+  "include": ["src/**/*.ts"], 
+  "exclude": [
+    "node_modules",
+    "./dist","src/**/**.test.ts",
+    "src/**/**.mock.ts"
+  ],
+  "ts-node": {
+    "esm": true,
+    "transpileOnly": true,
+    "compilerOptions": {
+      "module": "CommonJS"
+    }
+  }
+}
