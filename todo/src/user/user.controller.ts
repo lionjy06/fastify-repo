@@ -1,7 +1,10 @@
 import { FastifyReply, FastifyRequest } from 'fastify';
 import { registerUser } from './user.service';
-
-export const registerHandler = async (request: FastifyRequest, reply: FastifyReply) => {
+import { RegisterDto } from './user.schema';
+export const registerHandler = async (
+  request: FastifyRequest<{ Body: RegisterDto }>,
+  reply: FastifyReply
+) => {
   try {
     const userInfo = request.body;
     const result = await registerUser(userInfo);

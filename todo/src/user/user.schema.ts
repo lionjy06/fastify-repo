@@ -6,4 +6,9 @@ export const registerSchema = Type.Object({
   password: Type.String(),
 });
 
+export const registerResponseSchema = Type.Object({
+  email: Type.String(),
+  nickname: Type.String(),
+});
+
 export type RegisterDto = Static<typeof registerSchema>;

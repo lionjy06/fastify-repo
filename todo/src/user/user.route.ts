@@ -1,6 +1,7 @@
 import { FastifyPluginAsync } from 'fastify';
-import { registerSchema } from './user.schema';
+import { registerResponseSchema, registerSchema } from './user.schema';
 import { registerHandler } from './user.controller';
+import { appErrorSchema } from '../lib/AppError';
 
 const userRouter: FastifyPluginAsync = async fastify => {
   fastify.post(
@@ -8,6 +9,17 @@ const userRouter: FastifyPluginAsync = async fastify => {
     {
       schema: {
         body: registerSchema,
+        response: {
+          200: registerResponseSchema,
+          409: {
+            ...appErrorSchema,
+            example: {
+              name: 'UserExistsError',
+              message: 'User Already Exist',
+              statusCode: 409,
+            },
+          },
+        },
       },
     },
     registerHandler
