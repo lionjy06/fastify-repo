@@ -17,4 +17,10 @@ export const registerResponseSchema = Type.Object({
   }),
 });
 
+export const loginSchema = Type.Object({
+  email: Type.String(),
+  password: Type.String(),
+});
+
 export type RegisterDto = Static<typeof registerSchema>;
+export type LoginInput = Static<typeof loginSchema>;
