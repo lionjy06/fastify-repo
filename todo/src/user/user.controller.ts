@@ -1,6 +1,6 @@
 import { FastifyReply, FastifyRequest } from 'fastify';
-import { registerUser } from './user.service';
-import { RegisterDto } from './user.schema';
+import { loginUser, registerUser } from './user.service';
+import { LoginInput, RegisterDto } from './user.schema';
 export const registerHandler = async (
   request: FastifyRequest<{ Body: RegisterDto }>,
   reply: FastifyReply
@@ -13,4 +13,12 @@ export const registerHandler = async (
     console.error(e);
     throw e;
   }
+};
+
+export const loginHandler = async (
+  request: FastifyRequest<{ Body: LoginInput }>,
+  reply: FastifyReply
+) => {
+  const user = await loginUser(request.body);
+  return user;
 };

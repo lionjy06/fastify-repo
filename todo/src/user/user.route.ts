@@ -1,7 +1,7 @@
 import { FastifyPluginAsync } from 'fastify';
-import { registerResponseSchema, registerSchema } from './user.schema';
-import { registerHandler } from './user.controller';
-import { appErrorSchema } from '../lib/AppError';
+import { loginSchema, registerResponseSchema, registerSchema } from './user.schema';
+import { loginHandler, registerHandler } from './user.controller';
+import AppError, { appErrorSchema } from '../lib/AppError';
 
 const userRouter: FastifyPluginAsync = async fastify => {
   fastify.post(
@@ -23,6 +23,26 @@ const userRouter: FastifyPluginAsync = async fastify => {
       },
     },
     registerHandler
+  );
+  fastify.post(
+    '/login',
+    {
+      schema: {
+        body: loginSchema,
+        response: {
+          201: registerResponseSchema,
+          401: {
+            ...appErrorSchema,
+            example: {
+              name: 'AuthenticationError',
+              message: 'Invalid username of password',
+              statusCode: 401,
+            },
+          },
+        },
+      },
+    },
+    loginHandler
   );
 };
 

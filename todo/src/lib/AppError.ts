@@ -32,6 +32,10 @@ export default class AppError extends Error {
   }
 }
 
+export const isAppError = (error: unknown): error is AppError => {
+  return error instanceof AppError;
+};
+
 export const appErrorSchema = Type.Object({
   name: Type.String(),
   message: Type.String(),

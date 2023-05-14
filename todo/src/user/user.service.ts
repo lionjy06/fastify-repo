@@ -1,12 +1,13 @@
 import { PrismaClient, User } from '@prisma/client';
-import { RegisterDto } from './user.schema';
+import { LoginInput, RegisterDto } from './user.schema';
 import bcrypt from 'bcrypt';
-import AppError from '../lib/AppError';
+import AppError, { isAppError } from '../lib/AppError';
 import { generateToken } from '../lib/tokens';
 
 const prisma = new PrismaClient();
 
-export const getToken = async (email: string, nickname: string) => {
+export const getToken = async (user: User) => {
+  const { id, email, nickname } = user;
   const [access_Token, refresh_Token] = await Promise.all([
     await generateToken({
       type: 'access_Token',
@@ -41,11 +42,40 @@ export const registerUser = async (userInfo: RegisterDto) => {
       data: { password: hashedPassword, email, nickname },
     });
 
-    const token = await getToken(user.email, user.nickname);
+    const token = await getToken(user);
 
     return { token, user };
   } catch (e) {
     console.error(e);
     throw e;
+  }
+};
+
+export const loginUser = async ({ email, password }: LoginInput) => {
+  const user = await prisma.user.findUnique({
+    where: { email },
+  });
+
+  if (!user) {
+    throw new AppError('AuthenticationError');
+  }
+
+  try {
+    const result = await bcrypt.compare(password, user.password);
+    if (!result) {
+      throw new AppError('AuthenticationError');
+    }
+
+    const token = await getToken(user);
+
+    return {
+      user,
+      token,
+    };
+  } catch (e) {
+    if (isAppError(e)) {
+      throw e;
+    }
+    throw new AppError('UnknownError');
   }
 };
