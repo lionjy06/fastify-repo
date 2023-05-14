@@ -7,8 +7,14 @@ export const registerSchema = Type.Object({
 });
 
 export const registerResponseSchema = Type.Object({
-  email: Type.String(),
-  nickname: Type.String(),
+  user: Type.Object({
+    email: Type.String(),
+    nickname: Type.String(),
+  }),
+  token: Type.Object({
+    access_Token: Type.String(),
+    refresh_Token: Type.String(),
+  }),
 });
 
 export type RegisterDto = Static<typeof registerSchema>;
