@@ -5,6 +5,9 @@ import AppError from './lib/AppError';
 import swagger from '@fastify/swagger';
 import swaggerUi from '@fastify/swagger-ui';
 import { swaggerConfig, swaggerUiConfig } from './config/swagger';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 const app = fastify({
   logger: true,

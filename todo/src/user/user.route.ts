@@ -10,7 +10,7 @@ const userRouter: FastifyPluginAsync = async fastify => {
       schema: {
         body: registerSchema,
         response: {
-          200: registerResponseSchema,
+          201: registerResponseSchema,
           409: {
             ...appErrorSchema,
             example: {

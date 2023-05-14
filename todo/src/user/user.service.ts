@@ -2,7 +2,30 @@ import { PrismaClient, User } from '@prisma/client';
 import { RegisterDto } from './user.schema';
 import bcrypt from 'bcrypt';
 import AppError from '../lib/AppError';
+import { generateToken } from '../lib/tokens';
+
 const prisma = new PrismaClient();
+
+export const getToken = async (email: string, nickname: string) => {
+  const [access_Token, refresh_Token] = await Promise.all([
+    await generateToken({
+      type: 'access_Token',
+      email,
+      tokenId: 1,
+      nickname,
+    }),
+    await generateToken({
+      type: 'refresh_Token',
+      tokenId: 1,
+      rotationCounter: 1,
+    }),
+  ]);
+
+  return {
+    access_Token,
+    refresh_Token,
+  };
+};
 
 export const registerUser = async (userInfo: RegisterDto) => {
   try {
@@ -18,7 +41,9 @@ export const registerUser = async (userInfo: RegisterDto) => {
       data: { password: hashedPassword, email, nickname },
     });
 
-    return { email: user.email, nickname: user.nickname };
+    const token = await getToken(user.email, user.nickname);
+
+    return { token, user };
   } catch (e) {
     console.error(e);
     throw e;
