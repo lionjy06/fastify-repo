@@ -2,11 +2,15 @@ import fastify from 'fastify';
 import userRouter from './user/user.route';
 import { TypeBoxTypeProvider } from '@fastify/type-provider-typebox';
 import AppError from './lib/AppError';
+import swagger from '@fastify/swagger';
+import swaggerUi from '@fastify/swagger-ui';
+import { swaggerConfig, swaggerUiConfig } from './config/swagger';
 
 const app = fastify({
   logger: true,
 }).withTypeProvider<TypeBoxTypeProvider>();
-
+app.register(swagger, swaggerConfig);
+app.register(swaggerUi, swaggerUiConfig);
 app.register(userRouter);
 app.setErrorHandler(async (err, request, reply) => {
   reply.statusCode = err.statusCode ?? 500;
