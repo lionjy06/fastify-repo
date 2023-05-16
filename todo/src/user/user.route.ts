@@ -1,7 +1,7 @@
 import { FastifyPluginAsync } from 'fastify';
-import { loginSchema, registerResponseSchema, registerSchema } from './user.schema';
+import { loginSchema, userSchema, registerSchema } from './user.schema';
 import { loginHandler, registerHandler } from './user.controller';
-import AppError, { appErrorSchema } from '../lib/AppError';
+import { createAppErrorSchema } from '../lib/AppError';
 
 const userRouter: FastifyPluginAsync = async fastify => {
   fastify.post(
@@ -10,15 +10,8 @@ const userRouter: FastifyPluginAsync = async fastify => {
       schema: {
         body: registerSchema,
         response: {
-          201: registerResponseSchema,
-          409: {
-            ...appErrorSchema,
-            example: {
-              name: 'UserExistsError',
-              message: 'User Already Exist',
-              statusCode: 409,
-            },
-          },
+          201: userSchema,
+          409: createAppErrorSchema('AlreadyExists'),
         },
       },
     },
@@ -30,15 +23,8 @@ const userRouter: FastifyPluginAsync = async fastify => {
       schema: {
         body: loginSchema,
         response: {
-          201: registerResponseSchema,
-          401: {
-            ...appErrorSchema,
-            example: {
-              name: 'AuthenticationError',
-              message: 'Invalid username of password',
-              statusCode: 401,
-            },
-          },
+          201: userSchema,
+          401: createAppErrorSchema('WrongCredentials'),
         },
       },
     },

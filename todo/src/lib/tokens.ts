@@ -7,7 +7,7 @@ if (process.env.JWT_SECRET === undefined) {
 }
 
 const ACCESS_TOKEN_DURATION = '1h';
-const REFRESH_TOKEN_DURATION = '1W';
+const REFRESH_TOKEN_DURATION = '30 days';
 
 const tokenDuration = {
   access_Token: ACCESS_TOKEN_DURATION,
@@ -44,14 +44,14 @@ export const validateToken = <T>(token: string) => {
   });
 };
 
-interface AccessTokenPayload {
+export interface AccessTokenPayload {
   type: 'access_Token';
   email: string;
   tokenId: number;
   nickname: string;
 }
 
-interface RefereshTokenPayload {
+export interface RefereshTokenPayload {
   type: 'refresh_Token';
   tokenId: number;
   rotationCounter: number;

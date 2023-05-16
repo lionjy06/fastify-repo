@@ -1,11 +1,12 @@
 import fastify from 'fastify';
-import userRouter from './user/user.route';
+import api from './indexRouter';
 import { TypeBoxTypeProvider } from '@fastify/type-provider-typebox';
 import AppError from './lib/AppError';
 import swagger from '@fastify/swagger';
 import swaggerUi from '@fastify/swagger-ui';
 import { swaggerConfig, swaggerUiConfig } from './config/swagger';
 import dotenv from 'dotenv';
+import { authPlugin } from './plugins/authPlugin';
 
 dotenv.config();
 
@@ -14,7 +15,8 @@ const app = fastify({
 }).withTypeProvider<TypeBoxTypeProvider>();
 app.register(swagger, swaggerConfig);
 app.register(swaggerUi, swaggerUiConfig);
-app.register(userRouter);
+
+app.register(api);
 app.setErrorHandler(async (err, request, reply) => {
   reply.statusCode = err.statusCode ?? 500;
 
@@ -23,6 +25,7 @@ app.setErrorHandler(async (err, request, reply) => {
       name: err.name,
       message: err.message,
       statusCode: err.statusCode,
+      payload: err.payload,
     });
   }
   return err;

@@ -6,7 +6,7 @@ export const registerSchema = Type.Object({
   password: Type.String(),
 });
 
-export const registerResponseSchema = Type.Object({
+export const userSchema = Type.Object({
   user: Type.Object({
     email: Type.String(),
     nickname: Type.String(),
