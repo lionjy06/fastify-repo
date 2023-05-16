@@ -6,16 +6,18 @@ import swagger from '@fastify/swagger';
 import swaggerUi from '@fastify/swagger-ui';
 import { swaggerConfig, swaggerUiConfig } from './config/swagger';
 import dotenv from 'dotenv';
-import { authPlugin } from './plugins/authPlugin';
+import { authPluginAsync } from './plugins/authPlugin';
+import fastifyCookie from '@fastify/cookie';
 
 dotenv.config();
 
 const app = fastify({
   logger: true,
 }).withTypeProvider<TypeBoxTypeProvider>();
+app.register(authPluginAsync);
 app.register(swagger, swaggerConfig);
 app.register(swaggerUi, swaggerUiConfig);
-
+app.register(fastifyCookie);
 app.register(api);
 app.setErrorHandler(async (err, request, reply) => {
   reply.statusCode = err.statusCode ?? 500;

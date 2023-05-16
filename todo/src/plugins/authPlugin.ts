@@ -10,16 +10,14 @@ export const authPluginAsync: FastifyPluginAsync = async fastify => {
   fastify.decorateRequest('isExpiredToken', false);
   fastify.decorateRequest('user', null);
   fastify.addHook('preHandler', async request => {
-    const { authorization } = request.headers;
-    // console.log(authorization);
-    if (!authorization || !authorization?.includes('Bearer')) {
-      return;
-    }
+    const token =
+      request.headers.authorization?.split('Bearer ')[1] || request.cookies.access_Token;
 
-    const token = authorization?.split('Bearer ')[1];
+    if (!token) return;
 
     try {
       const decoded = await validateToken<AccessTokenPayload>(token);
+
       request.user = {
         email: decoded.email,
         nickname: decoded.nickname,
@@ -30,13 +28,8 @@ export const authPluginAsync: FastifyPluginAsync = async fastify => {
           request.isExpiredToken = true;
         }
       }
-      console.log(e.name, e.message);
     }
-    //요청객체안에 넣어주는 방법
-    // request.user = {
-    //   email: 'test@test',
-    //   nickname: 'test',
-    // };
+
     console.log('hello world');
   });
 };

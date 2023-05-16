@@ -9,14 +9,18 @@ const meRouter: FastifyPluginAsync = async fastify => {
     {
       schema: {
         response: {
-          200: getMeSchema,
+          200: {
+            type: 'object',
+            properties: {
+              email: { type: 'string' },
+              nickname: { type: 'string' },
+            },
+          },
           401: createAppErrorSchema('Unauthorized'),
         },
       },
     },
-    async (request: FastifyRequest, reply: FastifyReply) => {
-      return await getUserInfo(request, reply);
-    }
+    getUserInfo
   );
 };
 
