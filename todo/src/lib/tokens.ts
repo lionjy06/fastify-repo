@@ -15,7 +15,7 @@ const tokenDuration = {
 } as const;
 
 export const generateToken = async (payload: TokenPayload) => {
-  return new Promise((res, rej) => {
+  const token = new Promise<string>((res, rej) => {
     jwt.sign(
       payload,
       JWT_SECRET,
@@ -27,10 +27,11 @@ export const generateToken = async (payload: TokenPayload) => {
           rej(err);
           return;
         }
-        res(token);
+        res(token as string);
       }
     );
   });
+  return token;
 };
 
 export const validateToken = <T>(token: string) => {

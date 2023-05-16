@@ -22,5 +22,15 @@ export const loginHandler = async (
   reply: FastifyReply
 ) => {
   const user = await loginUser(request.body);
+  reply.setCookie('access_Token', user.token.access_Token, {
+    httpOnly: true,
+    expires: new Date(Date.now() + 1000 * 60 * 60),
+    path: '/',
+  });
+  reply.setCookie('refresh_Token', user.token.refresh_Token, {
+    httpOnly: true,
+    expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 30),
+    path: '/',
+  });
   return user;
 };

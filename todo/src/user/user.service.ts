@@ -35,7 +35,7 @@ export const registerUser = async (userInfo: RegisterDto) => {
       where: { email },
     });
 
-    if (exist) throw new AppError('UserExistsError');
+    if (exist) throw new AppError('UserExists');
 
     const hashedPassword = await bcrypt.hash(password, 10);
     const user: User = await prisma.user.create({
@@ -57,13 +57,13 @@ export const loginUser = async ({ email, password }: LoginInput) => {
   });
 
   if (!user) {
-    throw new AppError('AuthenticationError');
+    throw new AppError('WrongCredentials');
   }
 
   try {
     const result = await bcrypt.compare(password, user.password);
     if (!result) {
-      throw new AppError('AuthenticationError');
+      throw new AppError('WrongCredentials');
     }
 
     const token = await getToken(user);
@@ -76,6 +76,6 @@ export const loginUser = async ({ email, password }: LoginInput) => {
     if (isAppError(e)) {
       throw e;
     }
-    throw new AppError('UnknownError');
+    throw new AppError('Unknown');
   }
 };
