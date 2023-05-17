@@ -35,6 +35,7 @@ export const refreshToken = async (request: FastifyRequest, reply: FastifyReply)
   if (!refreshToken) {
     throw new AppError('BadRequest');
   }
+
   const result = await getRefreshToken(refreshToken);
   setTokenCookie(reply, result);
   return result;
