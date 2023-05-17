@@ -35,6 +35,7 @@ export const generateToken = async (payload: TokenPayload) => {
 };
 
 export const validateToken = <T>(token: string) => {
+  console.log(token);
   return new Promise<DecodedToken<T>>((res, rej) => {
     jwt.verify(token, JWT_SECRET, (err, decoded) => {
       if (err) {

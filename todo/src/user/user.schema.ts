@@ -22,5 +22,9 @@ export const loginSchema = Type.Object({
   password: Type.String(),
 });
 
+export const refreshTokenSchema = Type.Object({
+  refreshToken: Type.Optional(Type.String()),
+});
+
 export type RegisterDto = Static<typeof registerSchema>;
 export type LoginInput = Static<typeof loginSchema>;

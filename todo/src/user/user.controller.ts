@@ -1,6 +1,7 @@
 import { FastifyReply, FastifyRequest } from 'fastify';
-import { loginUser, registerUser } from './user.service';
+import { getRefreshToken, loginUser, registerUser } from './user.service';
 import { LoginInput, RegisterDto } from './user.schema';
+import AppError from '../lib/AppError';
 
 export const registerHandler = async (
   request: FastifyRequest<{ Body: RegisterDto }>,
@@ -22,15 +23,36 @@ export const loginHandler = async (
   reply: FastifyReply
 ) => {
   const user = await loginUser(request.body);
-  reply.setCookie('access_Token', user.token.access_Token, {
+
+  setTokenCookie(reply, user.token);
+
+  return user;
+};
+
+export const refreshToken = async (request: FastifyRequest, reply: FastifyReply) => {
+  const refreshToken = request.body?.refreshToken || request.cookies.refreshToken || '';
+
+  if (!refreshToken) {
+    throw new AppError('BadRequest');
+  }
+  const result = await getRefreshToken(refreshToken);
+  setTokenCookie(reply, result);
+  return result;
+};
+
+const setTokenCookie = (
+  reply: FastifyReply,
+  tokens: { access_Token: string; refresh_Token: string }
+) => {
+  console.log(tokens);
+  reply.setCookie('accessToken', tokens.access_Token, {
     httpOnly: true,
     expires: new Date(Date.now() + 1000 * 60 * 60),
     path: '/',
   });
-  reply.setCookie('refresh_Token', user.token.refresh_Token, {
+  reply.setCookie('refreshToken', tokens.refresh_Token, {
     httpOnly: true,
     expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 30),
     path: '/',
   });
-  return user;
 };

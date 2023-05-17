@@ -1,6 +1,16 @@
-import { FastifyPluginAsync } from 'fastify';
-import { loginSchema, userSchema, registerSchema } from './user.schema';
-import { loginHandler, registerHandler } from './user.controller';
+import { FastifyPluginAsync, FastifyRequest } from 'fastify';
+import {
+  loginSchema,
+  userSchema,
+  registerSchema,
+  refreshTokenSchema,
+} from './user.schema';
+import {
+  getRefreshToken,
+  loginHandler,
+  refreshToken,
+  registerHandler,
+} from './user.controller';
 import { createAppErrorSchema } from '../lib/AppError';
 import useGuard from '../plugins/useGuard';
 
@@ -42,6 +52,13 @@ const userRouter: FastifyPluginAsync = async fastify => {
       },
     },
     loginHandler
+  );
+  fastify.post<{ Body: { refreshToken?: string } }>(
+    '/refresh',
+    {
+      schema: refreshTokenSchema,
+    },
+    refreshToken
   );
 };
 

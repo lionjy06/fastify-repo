@@ -2,22 +2,33 @@ import { PrismaClient, User } from '@prisma/client';
 import { LoginInput, RegisterDto } from './user.schema';
 import bcrypt from 'bcrypt';
 import AppError, { isAppError } from '../lib/AppError';
-import { generateToken } from '../lib/tokens';
+import { RefereshTokenPayload, generateToken, validateToken } from '../lib/tokens';
+import { userInfo } from 'os';
 
 const prisma = new PrismaClient();
 
-export const getToken = async (user: User) => {
-  const { id, email, nickname } = user;
+export const getToken = async (user: User, existingTokenId?: number) => {
+  const { email, nickname } = user;
+  const userInfo = await prisma.user.findUnique({
+    where: { email },
+  });
+  if (!userInfo) return;
+  const token = await prisma.token.create({
+    data: { userId: userInfo.id },
+  });
+
+  const tokenId = existingTokenId ?? token.id;
+
   const [access_Token, refresh_Token] = await Promise.all([
     await generateToken({
       type: 'access_Token',
       email,
-      tokenId: 1,
+      tokenId,
       nickname,
     }),
     await generateToken({
       type: 'refresh_Token',
-      tokenId: 1,
+      tokenId,
       rotationCounter: 1,
     }),
   ]);
@@ -77,5 +88,26 @@ export const loginUser = async ({ email, password }: LoginInput) => {
       throw e;
     }
     throw new AppError('Unknown');
+  }
+};
+
+export const getRefreshToken = async (token: string) => {
+  try {
+    console.log('hi');
+    const { tokenId } = await validateToken<RefereshTokenPayload>(token);
+    console.log(tokenId);
+    const tokenItem = await prisma.token.findUnique({
+      where: {
+        id: tokenId,
+      },
+      include: {
+        user: true,
+      },
+    });
+    if (!tokenItem) throw new Error('Token not found');
+    const tokens = await getToken(tokenItem.user, tokenId);
+    return tokens;
+  } catch (e) {
+    throw new AppError('RefreshFailure');
   }
 };
