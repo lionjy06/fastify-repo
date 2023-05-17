@@ -1,4 +1,4 @@
-import { PrismaClient, User } from '@prisma/client';
+import { PrismaClient, Token, User } from '@prisma/client';
 import { LoginInput, RegisterDto } from './user.schema';
 import bcrypt from 'bcrypt';
 import AppError, { isAppError } from '../lib/AppError';
@@ -7,7 +7,7 @@ import { userInfo } from 'os';
 
 const prisma = new PrismaClient();
 
-export const getToken = async (user: User, existingTokenId?: number) => {
+export const getToken = async (user: User, tokenItem?: Token) => {
   const { email, nickname } = user;
   const userInfo = await prisma.user.findUnique({
     where: { email },
@@ -17,7 +17,7 @@ export const getToken = async (user: User, existingTokenId?: number) => {
     data: { userId: userInfo.id },
   });
 
-  const tokenId = existingTokenId ?? token.id;
+  const tokenId = tokenItem?.id ?? token.id;
 
   const [access_Token, refresh_Token] = await Promise.all([
     await generateToken({
@@ -29,7 +29,7 @@ export const getToken = async (user: User, existingTokenId?: number) => {
     await generateToken({
       type: 'refresh_Token',
       tokenId,
-      rotationCounter: 1,
+      rotationCounter: token.rotationCounter,
     }),
   ]);
 
@@ -93,9 +93,8 @@ export const loginUser = async ({ email, password }: LoginInput) => {
 
 export const getRefreshToken = async (token: string) => {
   try {
-    console.log('hi');
-    const { tokenId } = await validateToken<RefereshTokenPayload>(token);
-    console.log(tokenId);
+    const { tokenId, rotationCounter } = await validateToken<RefereshTokenPayload>(token);
+
     const tokenItem = await prisma.token.findUnique({
       where: {
         id: tokenId,
@@ -105,7 +104,21 @@ export const getRefreshToken = async (token: string) => {
       },
     });
     if (!tokenItem) throw new Error('Token not found');
-    const tokens = await getToken(tokenItem.user, tokenId);
+    if (tokenItem.blocked) {
+      throw new Error('token is blocked');
+    }
+    if (tokenItem.rotationCounter !== rotationCounter) {
+      await prisma.token.update({
+        where: { id: tokenItem.id },
+        data: { blocked: true },
+      });
+      throw new Error('rotation counter does not match');
+    }
+    await prisma.token.update({
+      where: { id: tokenItem.id },
+      data: { rotationCounter: tokenItem.rotationCounter + 1 },
+    });
+    const tokens = await getToken(tokenItem.user, tokenItem);
     return tokens;
   } catch (e) {
     throw new AppError('RefreshFailure');
