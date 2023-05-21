@@ -5,6 +5,10 @@ const errors = {
     statusCode: 409,
     message: 'User already exists',
   },
+  BadTaskDate: {
+    statusCode: 400,
+    message: 'Task date has set incorrectly',
+  },
   WrongCredentials: {
     statusCode: 401,
     message: 'Invalid username or password',

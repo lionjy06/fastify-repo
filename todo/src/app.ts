@@ -8,7 +8,6 @@ import { swaggerConfig, swaggerUiConfig } from './config/swagger';
 import dotenv from 'dotenv';
 import { authPluginAsync } from './plugins/authPlugin';
 import fastifyCookie from '@fastify/cookie';
-
 dotenv.config();
 
 const app = fastify({
@@ -34,7 +33,7 @@ app.setErrorHandler(async (err, request, reply) => {
 });
 const main = async () => {
   try {
-    await app.listen({ host: '0.0.0.0', port: 3000 });
+    await app.listen({ host: '0.0.0.0', port: 4000 });
   } catch (e) {
     app.log.error(e);
   }

@@ -3,7 +3,6 @@ import { LoginInput, RegisterDto } from './user.schema';
 import bcrypt from 'bcrypt';
 import AppError, { isAppError } from '../lib/AppError';
 import { RefereshTokenPayload, generateToken, validateToken } from '../lib/tokens';
-import { userInfo } from 'os';
 
 const prisma = new PrismaClient();
 
